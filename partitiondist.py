@@ -90,11 +90,9 @@ def randomMatrixGenerator(size, num = 5):
     for x in range(0, size):
         matrix.append([0]*size)
     path = pathGenerator(size)
-    values = randomIntersects(num, 2*size)
+    values = randomIntersects(num, 2*size-1)
     for coordinate in path:
-        print(values)
-        matrix[coordinate[0]][coordinate[1]] = values.pop(0)
-        print(matrix)
+        matrix[coordinate[0]][coordinate[1]] = values.pop(-1)
     return matrix    
         
 def pathGenerator(size):
