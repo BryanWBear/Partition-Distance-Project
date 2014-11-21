@@ -1,5 +1,6 @@
 import random
-
+import sys
+from munkres import Munkres
 def partitionParser(string):
     new_partition = False
     string_list = []
@@ -64,19 +65,56 @@ def badAssignmentAlg(matrix):
         print(currentstate)
         print(max_config)
     return max_assignment
-    
+
 def greedyAlg(matrix):
     max_assignment = []
-    while len(matrix)!= 0:
-        maxlist = []
-        for row in matrix:
-            maxlist.append(max(row))
+    for x in range(0, min(len(matrix), len(matrix[0]))):
+        maxlist = [max(row) for row in matrix]
         maxval = max(maxlist)
         max_assignment.append(maxval)
         maxindex = maxlist.index(maxval)
         colindex = matrix[maxindex].index(maxval)
         matrix = newMatrix(matrix, colindex, maxindex)[:]
-    return max_assignment
+    return sum(max_assignment)
+    
+def sortedGAlg(matrix):
+    maxlist = []
+    mlist = matrixSort(matrix)
+    
+    while(len(maxlist) < n):
+        if(maxlist = []):
+            maxlist.append(mlist.pop())
+            clist = [s[1:2] for s in mlist]
+        current = mlist.pop()
+        
+def matrixSort(matrix):
+    rowsize = len(matrix[0])
+    sortlist = addLists(matrix)
+    for i in range(len(sortlist)):
+        sortlist[i] = (sortlist[i], i/rowsize, i%rowsize)
+    return sorted(sortlist, key=lambda entry: entry[0])
+    
+def addLists(matrix):
+    if(len(matrix)==0):
+        return []
+    else:
+        return matrix.pop(0)+addLists(matrix)
+    
+    
+def munkresAlg(matrix): #code taken from python.org
+    cost_matrix = []
+    for row in matrix:
+        cost_row = []
+        for col in row:
+            cost_row += [sys.maxsize - col]
+        cost_matrix += [cost_row]
+    m = Munkres()
+    indexes = m.compute(cost_matrix)
+    total = 0
+    for row, column in indexes:
+        value = matrix[row][column]
+        total += value
+    return total
        
 def newMatrix(matrix,n, m): #returns a matrix missing the mth row and nth column. 
     l = len(matrix)
@@ -158,6 +196,57 @@ def transpositionGen(n):
             tmatrix.append([x,y])
     return tmatrix
     
-#def cycleComposer(cycle_matrix):
+def dirichlet(n, theta = 3, alpha = 0):
+    """
+    n = size of set you're sampling from
+    theta = concentration parameter
+    alpha = "discount" parameter
+    """
+    theta = float(theta)
+    list = []
+    for x in range(n):
+        #P(a) = putting elt into new subset
+        #P(b) = putting elt into existing subset
+        z = x + theta
+        probs = [float(len(s))-alpha for s in list]
+        probs += [theta + len(list)*alpha]
+        probs = [y/z for y in probs]
+        rand = random.uniform(0.,1.)
+        for j,elt in enumerate(probs):
+            rand-=elt
+            if rand < 0:
+                if j < len(list):
+                    list[j].append(x)
+                else:
+                    list.append([x]) 
+                break
+    return list
+
+
+def matrixGenerator(p1, p2):
+    matrix = []
+    for x in range(len(p1)):
+        current = p1[x]
+        ilist = [set(s).intersection(current) for s in p2]
+        matrix.append([len(s) for s in ilist])       
+    return matrix
+    
+def testMain(n, p1, p2): #n = number of trials, p1 and p2 = dirichlet parameters
+    success = 0.0
+    diff = 0.0
+    diffcount = 0
+    for x in range(0, n):
+        part1 = dirichlet(p1[0], p1[1], p1[2])
+        part2 = dirichlet(p2[0], p2[1], p2[2])
+        matrix = matrixGenerator(part1, part2)
+        a2 = munkresAlg(matrix)
+        a1 = greedyAlg(matrix)
+        if a1==a2:
+            success+=1
+        else:
+            diff+=abs(a1 - a2)
+            diffcount+=1
+    return (success/n, diff/diffcount)
+    
     
     
