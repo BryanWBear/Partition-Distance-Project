@@ -2,7 +2,8 @@ import random
 import numpy
 import scipy.special
 import sys
-from munkres import Munkres
+import itertools
+#from munkres import Munkres
 
 def partitionParser(string):
     new_partition = False
@@ -85,7 +86,7 @@ def sortedGAlg(matrix):
     mlist = matrixSort(matrix)
     
     while(len(maxlist) < n):
-        if(maxlist = []):
+        if(maxlist == []):
             maxlist.append(mlist.pop())
             clist = [s[1:2] for s in mlist]
         current = mlist.pop()
@@ -273,5 +274,20 @@ def testMain(n, p1, p2): #n = number of trials, p1 and p2 = dirichlet parameters
             diffcount+=1
     return (success/n, diff/diffcount)
     
-    
-    
+### simulation
+
+def sim_dpp_batch(rep=1, n=[10,100], theta=[1.0,2.0], alpha=[0.0,0.1]):
+
+    v = [ n, theta, alpha ]
+    params = list(itertools.product(*v))
+    m = {}
+    for i in params:
+        m[i] = []
+        for r in range(rep):
+            m[i].append(dirichlet(n=i[0], theta=i[1], alpha=i[2]))
+    return m
+
+def plot_vars():
+    # http://stackoverflow.com/questions/7941207/is-there-a-function-to-make-scatterplot-matrices-in-matplotlib
+    # wow, it really works!
+    return
